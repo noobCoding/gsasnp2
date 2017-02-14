@@ -1,0 +1,1 @@
+gsasnp2 -i data\DIAGRAM -p data\c2.cp.v5.2.symbols.gmt -s 0
