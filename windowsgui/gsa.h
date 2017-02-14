@@ -1455,6 +1455,17 @@ public:
 			PROTEIN_MAP.clear();
 			map <string, ogdf::node>().swap(PROTEIN_MAP);
 		}
+
+		// print subnet to file
+		string subnetfile = setName + ".net";
+		ofstream fou(subnetfile);
+		for (auto nodea : subnet) {
+			for (auto nodeb : nodea.second) {
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << endl;
+			}
+		}
+		fou.close();
+
 		// finishing			
 		subnet.clear();
 		map<string, map<string, double>>().swap(subnet);
@@ -1634,6 +1645,17 @@ public:
 
 		PROTEIN_MAP.clear();
 		map <string, ogdf::node>().swap(PROTEIN_MAP);
+
+		// print subnet to file
+		string subnetfile = setName + ".net";
+		fou.open(subnetfile);
+		for (auto nodea : subnet) {
+			for (auto nodeb : nodea.second) {
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << endl;
+			}
+		}
+		fou.close();
+
 		// finishing
 		subnet.clear();
 		map<string, map<string, double>>().swap(subnet);
