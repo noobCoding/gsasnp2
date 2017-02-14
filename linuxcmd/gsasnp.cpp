@@ -84,11 +84,9 @@ int main(int argc, char** argv)
 			("snpgene,s", po::value<bool>()->required(), "This parameter indicates that input file is  SNP (0) or GENE (1) p-value.")
 			("output,o", po::value<std::string>()->required()->default_value(DEFAULT_OUTPUT), "Path to output result. Default is 'adjusted_zscore_result.txt'.")
 			("genemap,g", po::value<std::string>()->required()->default_value(DEFAULT_MAP_FILE), "Gene map file.")
-			("adj,a", po::value<std::string>()->required()->default_value(ADJACENT_CORRELATION), "Inter-gene genotype correlation by race file.")
-			//("corr,c", po::value<double>()->required()->default_value(CORRELATION), "Correlation cut-off for deleting highly correlated adjacent genes. Default = 0.5.")
+			("adj,a", po::value<std::string>()->required()->default_value(ADJACENT_CORRELATION), "Inter-gene genotype correlation by race file.")			
 			("minset", po::value<int>()->required()->default_value(MINSET), "Minimum set size (number of genes). Default minset = 10")
-			("maxset", po::value<int>()->required()->default_value(MAXSET), "Minimum set size (number of genes). Default maxset = 200")		
-			//("trunc,t", po::value<double>()->required()->default_value(TRUNCATION), "Truncation level. Default truncation level = 0.25")						
+			("maxset", po::value<int>()->required()->default_value(MAXSET), "Minimum set size (number of genes). Default maxset = 200")					
 			("symbol,b", po::value<bool>()->required()->default_value(false), "Convert gene ID in gene set/pathway map to symbols.");
 		
 		
