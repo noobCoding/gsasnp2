@@ -112,7 +112,7 @@ double zsScoring(vector<double> xSub, double meanX, double stdevX)
 {
 	double szSub = xSub.size();
 	if (szSub == 0 || stdevX == 0)
-		return -7.9;//szSub += 0.00000001; // no division by 0 ~ smoothing
+		return -8.0;//szSub += 0.00000001; // no division by 0 ~ smoothing
 	return (meanv(xSub) - meanX) / (stdevX / sqrt(szSub));
 }
 
@@ -341,36 +341,25 @@ public:
 				for (auto vi = valHistogram[firstpinkey].begin(); vi != valHistogram[firstpinkey].end(); vi++) {
 					sizeToSigma[firstpinkey] = nSigma;
 					if (*vi > nSigma) {	// x >= m + 3s  # outlier - '=' is a must coz of in case single size value, si == 0, mu = single value
-											//fou << *vi << "\t" << mu << "\t" << si << "\t" << nSigma << endl;					
-											//	eid.push_back(idx);
 					}
 					else {
 						if (upperGS < *vi)
 							//fou << "upper: " << upperGS << endl,
 							upperGS = *vi;
 					}
-					//idx++;
+					
 				}
 
 				for (auto vi = mi.second.begin(); vi != mi.second.end(); vi++) {
 					sizeToSigma[mi.first] = nSigma;
 					if (*vi >= nSigma) {	// x >= m + 3s  # outlier - '=' is a must coz of in case single size value, si == 0, mu = single value
-											//fou << *vi << "\t" << mu << "\t" << si << "\t" << nSigma << endl;					
-					//	eid.push_back(idx);
 					}
 					else {
-						if (upperGS < *vi)
-							//fou << "upper: " << upperGS << endl,
+						if (upperGS < *vi)							
 							upperGS = *vi;
 					}
-					//idx++;
+					
 				}
-
-				/*while (eid.size() > 0) {
-					mi.second.erase(mi.second.begin() + eid.back());
-					eid.pop_back();
-				}*/
-
 				firstpin = true;
 			}
 			else {
@@ -491,30 +480,8 @@ public:
 			countk++;
 			}	
 
-			// Fibonacci:
-			/*knot = fiboA + fiboB;
-			if (countpin == knot) {
-				segment.push_back(mi.first);
-				knot = fiboB;
-				fiboB = fiboA + knot;
-				fiboA = knot;
-			}		*/	
-			
 			// count pins			
-		//	if (countpin % 15 == 1 || countpin == numSize) segment.push_back(mi.first);
-			countpin++;
-
-			//if (count < nCutoff * ks) { // count percentile
-			//	count += mi.second;
-			//	if (count > nCutoff * ks)
-			//	{
-			//		segment.push_back(mi.first);
-			//		ks += percentile;
-			//	}
-			//}
-			//else {
-			//	ks += percentile;
-			//}
+			countpin++;			
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -529,20 +496,7 @@ public:
 		knots[nSeg].x = maxSize;	// the last knot
 		knots[nSeg].y = maxGS;
 		bincount[nSeg] = 1;
-		int tmpsize = 0;//, yOneCount = 0;
-
-		/*map<int, map<double, int>> size2pin;
-		for (int i = 0; i < (int)cutoffSize.size(); i++) {
-			tmpsize = (int)cutoffSize[i];
-			for (int k = 1; k < nSeg; k++) {
-				if (segment[k] - range < tmpsize && tmpsize <= segment[k]) {
-					size2pin[k][cutoffGS[i]] = 1;
-				}
-			}
-		}
-		for (int i = 1; i < nSeg; i++) {
-			knots[i].y = findMedianOfTopMax(size2pin[i], 1.0);
-		}*/
+		int tmpsize = 0;//, yOneCount = 0;		
 
 		for (int i = 0; i < (int)cutoffSize.size(); i++) {
 			tmpsize = (int)cutoffSize[i];
@@ -637,13 +591,10 @@ public:
 	//////////////////////////////////////////////////////////////////////	
 	void geneFilter(double inputCorrelation = 0.5)
 	{
-		//int countrefinedSet = 0;
-		//int countrefinedGene = 0;
 		// find representative gene if exist
 		map<string, bool> geneRefinedtmp;
 		for (auto gi : geneInput) {
 			if (famiGene.find(gi) != famiGene.end()) { // there is a representative for this gene
-													   //geneRefinedtmp[famiGene[gi]] = 1;
 				geneRefinedtmp[gi] = 1;
 			}
 			else
@@ -658,31 +609,13 @@ public:
 		// adjacent gene filter
 		for (auto sg : setGeneGlobal)
 		{
-			// set-gene map: 1st phase: representative assigning
-			// 2nd phase: sorting gene in chromosome order			
-			//fou << "refinedgeneinorder" << endl;
 			map<int, string> refinedgeneinorder; // <gene-loc, genelocation> sorted ascending
 			int aliasLoc = 1;
-			for (auto gi : sg.second) {// gene list
-									   //if (geneRefinedIndex.find(gi) == geneRefinedIndex.end()) // has been replaced by representative gene
-									   //if (geneInputIndex.find(gi) == geneInputIndex.end()) // has been replaced by representative gene
-									   //{
-									   //	/*bool found = false;
-									   //	for (auto ti : sg.second) {
-									   //		if (ti.compare(famiGene[gi]) == 0) found = true;
-									   //		break;
-									   //	}
-									   //	if (found)	refinedgeneinorder[geneLoc[famiGene[gi]].start] = famiGene[gi];
-									   //	else */
-									   //	refinedgeneinorder[geneLoc[gi].start] = gi;
-									   //	//fou << geneLoc[famiGene[gi]].start << "\t" << famiGene[gi] << endl;
-									   //}
-									   //else 
+			for (auto gi : sg.second) {// gene list									 
 				if (refinedgeneinorder.find(geneLoc[gi].start) == refinedgeneinorder.end()) // same start
 					refinedgeneinorder[geneLoc[gi].start] = gi;
 				else
 				{
-					//fou << "start duplicated! " << refinedgeneinorder[geneLoc[gi].start] << "\t" << gi << endl;
 					string previousGene = refinedgeneinorder[geneLoc[gi].start]; // gene which has the same start
 					int previousLength = geneLoc[previousGene].end - geneLoc[previousGene].start;
 					int giLength = geneLoc[gi].end - geneLoc[gi].start;
@@ -697,11 +630,9 @@ public:
 						refinedgeneinorder[geneLoc[gi].start + aliasLoc] = gi;
 					}
 					aliasLoc++;
-				}
-				//fou << geneLoc[gi].start << "\t" << gi << endl;				
+				}							
 			}
-
-			//fou << "sortedRefinedGene" << endl;
+		
 			vector<string> sortedRefinedGene;
 			for (auto li : refinedgeneinorder) {
 				sortedRefinedGene.push_back(li.second);
@@ -709,7 +640,6 @@ public:
 			}
 
 			// 3rd: checking correlation of 2 adjacent genes
-			//fou << "finalRefinedGene\n";
 			vector<string> finalRefinedGene(0);
 			for (int i = 0; i < (int)sortedRefinedGene.size() - 1; i++)
 			{
@@ -723,16 +653,14 @@ public:
 						string	snpB = bestSnpGene[sortedRefinedGene[i + 1]];
 						snpA.replace(0, 2, "");
 						snpB.replace(0, 2, "");
-						//fou << "snpA: " << snpA << "\t" << "snpB: " << snpB << endl;
-
+						
 						// located snpA, snpB against (LL, LM, LR, ML, MM, MR, RL, RM, RR)
 						adjacentpair abPair = geneInOrder[sortedRefinedGene[i]];
 						int locA = snpLocMap[snpA]; // they should be valid, God please again!!
 						int locB = snpLocMap[snpB];
 						if (locA != 0 && locB != 0) {
 							const int	corrLoc[3][3] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-							//	fou << "locA: " << locA << "\t" << "locB: " << locB << endl;
-
+							
 							int minidxA = 0;
 							int minDiffA = abs(locA - snpLocMap[abPair.geneA.snpL]);
 							if (minDiffA > abs(locA - snpLocMap[abPair.geneA.snpM]))		minidxA = 1, minDiffA = abs(locA - snpLocMap[abPair.geneA.snpM]);
@@ -744,7 +672,6 @@ public:
 							if (minDiffB > abs(locB - snpLocMap[abPair.geneB.snpR]))		minidxB = 2;
 
 							double corrAB = abPair.corr[corrLoc[minidxA][minidxB]];
-							//	fou << minidxA << "\t" << minidxB << "\t" << corrAB << endl;
 							if (corrAB >= inputCorrelation) { // high correlation detected, remove B							
 																
 								i++; // step over geneB, move to next gene
@@ -772,31 +699,6 @@ public:
 			
 
 	}	/// end of function geneFilter
-
-	/*void familyGeneLoad(string filename = "data\\FamilyGeneList")
-	{
-		ifstream fin(filename);
-		if (!fin.is_open())
-		{
-			cerr << "Unavailable data: " << filename << " is missed!" << endl;
-			
-		}
-
-		string inpLine;								// remove 1 meta lines
-		for (int j = 0; j < 1; ++j)
-		{
-			getline(fin, inpLine);
-		}
-
-		while (getline(fin, inpLine))
-		{
-			string agene, metagene, dumbdata;
-			stringstream iss(inpLine);
-			iss >> dumbdata >> agene >> dumbdata >> dumbdata >> dumbdata >> metagene;
-			famiGene[agene] = metagene;
-		}
-		fin.close();
-	}*/
 
 	void geneLocMapGenerate(string filename = "data\\hg19GeneList") {
 		ifstream fin(filename);
@@ -1241,9 +1143,7 @@ public:
 		string curSnp;
 		string pval, dumbdata;
 		double tmpP;
-		//double myesp = 0.00000000000000001;
-		//int countesp = 1;
-
+		
 		while (fin >> curSnp) {
 			//	identify p-value
 			fin >> pval;
