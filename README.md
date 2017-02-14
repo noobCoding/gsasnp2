@@ -3,6 +3,8 @@ GSA-SNP2 is successor of GSA-SNP (Nam et al. 2010, NAR web server issue). GSA-SN
 
 Project website: https://sites.google.com/view/gsasnp2
 
+Data for testing can be downloaded at: https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k
+
 # Five features of GSA-SNP2:
 
 1/  Reasonable type I error control by the following two processes:
