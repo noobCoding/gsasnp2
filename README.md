@@ -24,5 +24,7 @@ Competitive methods directly target pathway-level aberrations by testing the ‘
 # Comparison with other competitive methods 
 
 Performance of GSA-SNP2 was compared with those of five existing competitive methods, GSA-SNP, iGSEA4GWAS MAGENTA, INRICH and GOWINDA. GSA-SNP2 was a little liberal in false positive control compared to others, but exhibited high power and best discriminatory ability. 
-  A) Comparison of type I error control: twenty null genotype data sets were generated using 1000 genome (European) and GWAsimulator tool and corresponding p-values were input to each program. GSA-SNP2 exhibited greatly improved type I error control compared to GSA-SNP.
-  B) Power comparison: DIAGRAM consortium GWAS p-values (European) were used to compare the statistical power. 16 curated T2D related pathways (Morris et al. Nat. Genetics 2012) as well as the terms including ‘diabetes’ were regarded as true positives (TPs). GSA-SNP2 exhibited high power and best ranks of TPs. See the results here.
+
+1/ Comparison of type I error control: twenty null genotype data sets were generated using 1000 genome (European) and GWAsimulator tool and corresponding p-values were input to each program. GSA-SNP2 exhibited greatly improved type I error control compared to GSA-SNP.
+  
+2/ Power comparison: DIAGRAM consortium GWAS p-values (European) were used to compare the statistical power. 16 curated T2D related pathways (Morris et al. Nat. Genetics 2012) as well as the terms including ‘diabetes’ were regarded as true positives (TPs). GSA-SNP2 exhibited high power and best ranks of TPs. See the results here.
