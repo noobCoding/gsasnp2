@@ -1434,8 +1434,7 @@ public:
 		ofstream fou(subnetfile);
 		for (auto nodea : subnet) {
 			for (auto nodeb : nodea.second) {
-				string commonPathway = commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined));
-				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathway << endl;;
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined)) << endl;;
 			}
 		}
 		fou.close();
@@ -1455,8 +1454,11 @@ public:
 			for (auto& si : sg.second) {
 				if (si.compare(nodeA) == 0)		foundA = 1;
 				if (si.compare(nodeB) == 0)		foundB = 1;
-			}
-			if (foundA & foundB)	tpw += sg.first + ";";
+				if (foundA & foundB) {
+					tpw += sg.first + ";";
+					break;
+				}
+			}			
 		}
 		return tpw;
 	}
@@ -1639,8 +1641,7 @@ public:
 		fou.open(subnetfile);
 		for (auto nodea : subnet) {
 			for (auto nodeb : nodea.second) {
-				string commonPathway = commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined));
-				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathway << endl;;
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined)) << endl;;
 			}
 		}
 		fou.close();
