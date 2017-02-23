@@ -241,7 +241,7 @@ public:
 
 	void Analyzing(initparam initParam)// resparam &resParam) 
 	{
-		geneFilter();
+		geneFilter(0.5);
 		geneScoring(initParam.inputType); // original
 		adjustedGeneScoring(initParam.inputType); // original
 		adjustedPvalueBH();
@@ -499,33 +499,6 @@ public:
 		//fou.close();
 
 		//// regression for lower part with optimal cutoff
-		//// 1 - logarithmic estimation
-		//vcRegression gsreg;
-		//coef.clear(); vector<double>().swap(coef);
-		//gsreg.Logarithmic(cutoffSize, cutoffGS, coef);
-		//fou.open("coef2");
-		//fou << coef[0] << "\t" << coef[1] << endl;
-		//fou << "y = " << coef[0] << " * ln(x) + " << coef[1] << endl;	
-		//fou.close();
-		//	
-		//fou.open("logall.txt");
-		//double p_threshold = find4threshold(threshold);
-		//for (int i = 0; i < (int)newGeneScore.size(); i++) {
-		//	if (newGeneScore[i] < p_threshold)	newGeneScore[i] = 0.;
-		//	if (newGeneScore[i] > outlierBound)	newGeneScore[i] = outlierBound;
-		//	double trendline = coef[0] * log(newGeneSize[i]) + coef[1];
-		//	fou << newGeneSize[i] << "\t" << trendline << endl;
-		//	if (adjzMethod == 0) {		// default = LESS FALSE POSITIVE
-		//		newGeneScore[i] -= trendline;
-		//	}
-		//	else {						// MORE POWER
-		//		if (newGeneScore[i] < trendline)
-		//			newGeneScore[i] = trendline;
-		//	}
-		//}
-		//fou.close();
-		//adjGeneScore = newGeneScore;
-
 		//// 2 - monotonic cubic spline		
 		int nCutoff = (int)cutoffGS.size();
 		vector<int> segment;
@@ -1461,7 +1434,8 @@ public:
 		ofstream fou(subnetfile);
 		for (auto nodea : subnet) {
 			for (auto nodeb : nodea.second) {
-				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << endl;
+				string commonPathway = commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined));
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathway << endl;;
 			}
 		}
 		fou.close();
@@ -1471,6 +1445,20 @@ public:
 		map<string, map<string, double>>().swap(subnet);
 		//////////////////////////////////////////////////////////////////////////
 		return filePath;
+	}
+	
+	string commonPathwaySearch(string nodeA, string nodeB, map<string, vector<string>> setgenemap )
+	{
+		string tpw = "";
+		for (auto sg : setgenemap) {
+			bool foundA = 0, foundB = 0;
+			for (auto& si : sg.second) {
+				if (si.compare(nodeA) == 0)		foundA = 1;
+				if (si.compare(nodeB) == 0)		foundB = 1;
+			}
+			if (foundA & foundB)	tpw += sg.first + ";";
+		}
+		return tpw;
 	}
 
 	string coreNetDraw(netparam *param, string setName, double qvalcutoff, double cutoff)
@@ -1651,7 +1639,8 @@ public:
 		fou.open(subnetfile);
 		for (auto nodea : subnet) {
 			for (auto nodeb : nodea.second) {
-				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << endl;
+				string commonPathway = commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined));
+				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathway << endl;;
 			}
 		}
 		fou.close();
