@@ -97,6 +97,7 @@ public:
 	CButton m_rad_Input_GENE;
 	afx_msg void OnBnClickedRadioSnp();
 	afx_msg void OnBnClickedRadioGene();
-	CComboBox m_cmb_NetworkData;
+	CMFCEditBrowseCtrl m_cbrowser_NetFile;
+
 };
 

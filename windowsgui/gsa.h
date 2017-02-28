@@ -277,7 +277,8 @@ public:
 			string genea, geneb;
 			double weight;
 			ss >> genea >> geneb >> weight;
-			weight = weight / 1000; // re-scale to 0 ~ 1
+			if (weight > 1) // STRINGNET -> re-scale to 0 ~ 1
+				weight = weight / 1000; 
 			if (geneInputIndex.find(genea) != geneInputIndex.end() && geneInputIndex.find(geneb) != geneInputIndex.end()) {	// both genes are under consideration
 				if (genenet.find(genea) == genenet.end()) {	// not yet recognized before
 					tmp[geneb] = weight; // add new edge of ogdf::Graph
@@ -472,7 +473,7 @@ public:
 						allsame = false;
 				}
 
-				if (!allsame && iteration <= 5000) {
+				if (!allsame && iteration <= 13.000) {
 					lastFive.push_back(coef[0]);
 				}
 				else {
@@ -499,6 +500,33 @@ public:
 		//fou.close();
 
 		//// regression for lower part with optimal cutoff
+		//// 1 - logarithmic estimation
+		//vcRegression gsreg;
+		//coef.clear(); vector<double>().swap(coef);
+		//gsreg.Logarithmic(cutoffSize, cutoffGS, coef);
+		//fou.open("coef2");
+		//fou << coef[0] << "\t" << coef[1] << endl;
+		//fou << "y = " << coef[0] << " * ln(x) + " << coef[1] << endl;	
+		//fou.close();
+		//	
+		//fou.open("logall.txt");
+		//double p_threshold = find4threshold(threshold);
+		//for (int i = 0; i < (int)newGeneScore.size(); i++) {
+		//	if (newGeneScore[i] < p_threshold)	newGeneScore[i] = 0.;
+		//	if (newGeneScore[i] > outlierBound)	newGeneScore[i] = outlierBound;
+		//	double trendline = coef[0] * log(newGeneSize[i]) + coef[1];
+		//	fou << newGeneSize[i] << "\t" << trendline << endl;
+		//	if (adjzMethod == 0) {		// default = LESS FALSE POSITIVE
+		//		newGeneScore[i] -= trendline;
+		//	}
+		//	else {						// MORE POWER
+		//		if (newGeneScore[i] < trendline)
+		//			newGeneScore[i] = trendline;
+		//	}
+		//}
+		//fou.close();
+		//adjGeneScore = newGeneScore;
+
 		//// 2 - monotonic cubic spline		
 		int nCutoff = (int)cutoffGS.size();
 		vector<int> segment;
@@ -522,7 +550,31 @@ public:
 				segment.push_back(mi.first);
 				countk++;
 			}
-			countpin++;			
+
+			// Fibonacci:
+			/*knot = fiboA + fiboB;
+			if (countpin == knot) {
+			segment.push_back(mi.first);
+			knot = fiboB;
+			fiboB = fiboA + knot;
+			fiboA = knot;
+			}		*/
+
+			// count pins			
+			//if (countpin % 15 == 1 || countpin == numSize) segment.push_back(mi.first);
+			countpin++;
+
+			//if (count < nCutoff * ks) { // count percentile
+			//	count += mi.second;
+			//	if (count > nCutoff * ks)
+			//	{
+			//		segment.push_back(mi.first);
+			//		ks += percentile;
+			//	}
+			//}
+			//else {
+			//	ks += percentile;
+			//}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -548,49 +600,66 @@ public:
 				}
 			}
 		}
+
+		//ofstream ffo("allknots");
 		for (int i = 1; i < nSeg; i++) {
 			knots[i].y /= (double)bincount[i];
+			//ffo << knots[i].x << "\t" << knots[i].y << endl;
 		}
+		//ffo.close();
 
 		vector<myPoint> upperKnots; // knots for upper line
 		vector<myPoint> lowerKnots; // knots for lower line
-
 									// upper knots
+		//ffo.open("upperknots");		
+		//ffo << knots[0].x << "\t" << knots[0].y << endl;
 		upperKnots.push_back(knots[0]); // 1st knot
 		double previousScore = knots[0].y;
 		for (int i = 1; i < nSeg; i++) {
 			if (knots[i].y > previousScore) {
 				upperKnots.push_back(knots[i]);
 				previousScore = knots[i].y;
-			}
+				//ffo << knots[i].x << "\t" << knots[i].y << endl;
+			}			
 		}
 		upperKnots.push_back(knots[nSeg]); // last knot
-
+		/*ffo << knots[nSeg].x << "\t" << knots[nSeg].y << endl;
+		ffo.close();*/
 										   // lower knots
+		//ffo.open("lowerknots");
 		lowerKnots.push_back(knots[nSeg]); // last knot
+		//ffo << knots[nSeg].x << "\t" << knots[nSeg].y << endl;
 		previousScore = knots[nSeg].y;
 		for (int i = nSeg - 1; i > 0; i--) {
 			if (knots[i].y < previousScore) {
 				lowerKnots.insert(lowerKnots.begin(), knots[i]);
 				previousScore = knots[i].y;
+				//ffo << knots[i].x << "\t" << knots[i].y << endl;
 			}
 		}
 		lowerKnots.insert(lowerKnots.begin(), knots[0]); // 1st knot
+		/*ffo << knots[0].x << "\t" << knots[0].y << endl;
+		ffo.close();*/
 
 		vcRegression gsreg, upperReg, lowerReg;
 		upperReg.monotoneCubicSplineInit(upperKnots);
 		lowerReg.monotoneCubicSplineInit(lowerKnots);
 
 		//predicted median knots
+		//ffo.open("medknots");
 		vector<myPoint> mediumKnots; // knots for median line
 		mediumKnots.push_back(knots[0]); // 1st knot
+		//ffo << knots[0].x << "\t" << knots[0].y << endl;
 		myPoint tmp;
 		for (int i = 1; i < nSeg; i++) {
 			tmp.x = knots[i].x;
 			tmp.y = 0.5 * (upperReg.monotoneCubicSplineInterp(tmp.x) + lowerReg.monotoneCubicSplineInterp(tmp.x));
 			mediumKnots.push_back(tmp);
+			//ffo << tmp.x << "\t" << tmp.y << endl;
 		}
 		mediumKnots.push_back(knots[nSeg]); // last knot
+		//ffo << knots[nSeg].x << "\t" << knots[nSeg].y << endl;
+		//ffo.close();
 		gsreg.monotoneCubicSplineInit(mediumKnots);
 
 		double p_threshold = 0.;
@@ -601,7 +670,15 @@ public:
 			if (newGeneScore[i] < p_threshold)	newGeneScore[i] = 0.;
 			if (newGeneScore[i] > outlierBound)	newGeneScore[i] = outlierBound;
 			double trendline = gsreg.monotoneCubicSplineInterp(newGeneSize[i]);
-			newGeneScore[i] -= trendline;		
+
+			//if (adjzMethod == 0) 
+			{		// LESS FALSE POSITIVE = default
+				newGeneScore[i] -= trendline;
+			}
+			//else {						// MORE POWER
+			//	if (newGeneScore[i] < trendline)
+			//		newGeneScore[i] = trendline;
+			//}
 		}
 		adjGeneScore = newGeneScore;
 
@@ -626,6 +703,7 @@ public:
 			zsAdjusted[mi.first] = zsScoring(genePvalue, muPop, sigPop, (int)adjGeneScore.size());
 			pvAdjusted[mi.first] = z2p(zsAdjusted[mi.first]);
 		}
+
 	}
 
 	//////////////////////////////////////////////////////////////////////	
@@ -670,9 +748,10 @@ public:
 								}
 							}
 						}
-						if (famiFound) {							
+						if (famiFound) {
+							//fou << "familiy gene removed: " << gi << endl; 
 							continue;
-						}						
+						}	// not count gi						
 					}
 				}
 
@@ -742,6 +821,7 @@ public:
 
 							double corrAB = abPair.corr[corrLoc[minidxA][minidxB]];
 							if (corrAB >= inputGeneCorrelation) { // high correlation detected, remove B							
+								//fou << "removed: " << sortedRefinedGene[i + 1] << "\t" << lgRsInput[lgRsInputIndex[bestSnpGene[sortedRefinedGene[i + 1]]]] << endl;								
 								i++; // step over geneB, move to next gene
 							}
 							else
@@ -764,7 +844,11 @@ public:
 			}	/// end of for (int i = 0; i < (int)sortedRefinedGene.size() - 1; i++)
 
 				// 4th: update setGeneRefined
-			setGeneRefined[sg.first] = finalRefinedGene;			
+			setGeneRefined[sg.first] = finalRefinedGene;
+			/*if (sg.second.size() != setGeneRefined[sg.first].size()) {
+				countrefinedSet++;*/
+				//fou << "Gene removed: " << sg.first << "\t" << sg.second.size() - finalRefinedGene.size() << endl;
+		//}
 		}	/// end of for (auto sg : setGeneGlobal)		
 
 	}	/// end of function geneFilter
@@ -848,6 +932,10 @@ public:
 		}
 		fin.close();
 	}
+
+	/*const string allChromosome[22] = { "chr22.txt", "chr21.txt", "chr20.txt" ,
+		"chr19.txt", "chr18.txt", "chr17.txt", "chr16.txt", "chr15.txt", "chr14.txt", "chr13.txt", "chr12.txt", "chr11.txt",
+		"chr10.txt", "chr9.txt", "chr8.txt", "chr7.txt", "chr6.txt", "chr5.txt", "chr4.txt", "chr3.txt", "chr2.txt", "chr1.txt" };*/
 
 	void snpLocMapGenerate(string filename = "data\\rsloc_hg19") {
 		ifstream fin;
@@ -1246,7 +1334,11 @@ public:
 
 				tmpP = -log10(tmpP);
 				lgRsInput.push_back(tmpP);		// list of -log(p-value)
-				lgRsInputIndex[curSnp] = lgRsInput.size() - 1; // tmp indexing				
+				lgRsInputIndex[curSnp] = lgRsInput.size() - 1; // tmp indexing
+				/*if (sorted_pval_index.find(tmpP) != sorted_pval_index.end()) {
+					tmpP += countesp * myesp;
+					countesp++;
+				}*/
 				sorted_pval_index[tmpP] = lgRsInput.size() - 1;
 			}
 		}
@@ -1399,6 +1491,8 @@ public:
 			/////////////////////////////////////////////////////////
 			//double curGeneScore = orgGeneScore[geneInputIndex[<geneName>]];	 // NODE WEIGHT
 			//filePath = setSubNetBuilding("geneset_test", geneList, subnet, orgGeneScore, geneInputIndex);
+			string strcutoff = to_string(pow(10, -cutoff));
+			setName += "_" + strcutoff;
 			ogdf::Graph G;
 			ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::nodeGraphics |
 				ogdf::GraphAttributes::nodeStyle |
@@ -1439,13 +1533,21 @@ public:
 		}
 		fou.close();
 
+		string subnetgnl = setName + ".gnl";
+		fou.open(subnetgnl);
+
+		for (auto& vi : minList)		// scan for all genes in minimal List
+		{
+			fou << vi << endl;
+		}
+		fou.close();
 		// finishing			
 		subnet.clear();
 		map<string, map<string, double>>().swap(subnet);
 		//////////////////////////////////////////////////////////////////////////
 		return filePath;
 	}
-	
+
 	string commonPathwaySearch(string nodeA, string nodeB, map<string, vector<string>> setgenemap )
 	{
 		string tpw = "";
@@ -1606,6 +1708,7 @@ public:
 		/////////////////////////////////////////////////////////
 		//double curGeneScore = orgGeneScore[geneInputIndex[<geneName>]];	 // NODE WEIGHT
 		//filePath = setSubNetBuilding("geneset_test", geneList, subnet, orgGeneScore, geneInputIndex);
+		setName += "_" + strcutoff + "_" + to_string(qvalcutoff);
 		ogdf::Graph G;
 		ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::nodeGraphics |
 			ogdf::GraphAttributes::nodeStyle |
@@ -1640,9 +1743,18 @@ public:
 		string subnetfile = setName + ".net";
 		fou.open(subnetfile);
 		for (auto nodea : subnet) {
-			for (auto nodeb : nodea.second) {
+			for (auto nodeb : nodea.second) {				
 				fou << nodea.first << "\t" << nodeb.first << "\t" << nodeb.second << "\t" << commonPathwaySearch(nodea.first, nodeb.first, *(param->setGeneRefined)) << endl;;
 			}
+		}
+		fou.close();
+
+		string subnetgnl = setName + ".gnl";
+		fou.open(subnetgnl);
+
+		for (auto& vi : minList)		// scan for all genes in minimal List
+		{
+			fou << vi << endl;
 		}
 		fou.close();
 
@@ -1746,8 +1858,148 @@ public:
 
 		////string coreNetDraw(netparam *param, string setName, double qvalcutoff, double cutoff)		
 		string filePath = "common_network";
+
+		//////	SNP-GENE INFORMATION	//////////////////////////////////////////////////////////////////////
+		//const string geneTag1 = "<div id='myModal";
+		//const string geneTag2 = "' class='modal'>  <div class='modal-content'><div class='modal-header'><span id='close";
+		//const string geneTag3 = "' class='close'>&times;</span><h2>Gene-SNPs Reference</h2></div><div class='modal-body'><table><col width='200'><col width='auto'><tbody><tr><td><p><b>Gene<b></p></td><td><a href = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
+		//const string geneTag4 = "'><b>";
+		//const string geneTag5 = "</b></a><i>("; // +gene score
+		//const string geneTag6 = ")</i></td></tr><tr><td colspan='2'>&nbsp; </td></tr><tr><td><p><b>SNPs</b> <i>(p_value &le; 0.05) </i> </p></td> <td><p>";
+
+		//const string snpTag1 = "<a href = 'https://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
+		//const string snpTag2 = "'>";
+		//const string snpTag3 = "</a><i>(";
+		//const string snpTag4 = ")</i>&nbsp; ";
+
+		//const string subGeneTag1 = "</p></td></tr><tr><td colspan='2'>&nbsp; </td></tr><tr><td><p><b>Neighboring genes </b><i>(interaction weight)</i></p></td> <td><p>";
+		//const string subGeneTag2 = "<a href = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene="; // + gene +
+		//const string subGeneTag3 = "'><b>"; // + gene +
+		//const string subGeneTag4 = "</b></a><i>("; // + gene score +
+		//const string subGeneTag5 = ")</i>&nbsp; ";
+
+		//const string geneTagEnd = "</p></td></tr></tbody></table></div><div class='modal-footer'><h4> COMMON NETWORK </h4></div></div></div></br>";
+
+		//string snpGeneInfo = "";
+		//string agene = "";
+
+		//for (auto& vi : minList)		// scan for all genes in minimal List
+		//{
+		//	double genescore = pow(10, -(((orgGeneScore))[((geneInputIndex))[vi]]));
+		//	string strGeneScore = to_string(genescore);
+		//	agene = geneTag1 + vi + geneTag2 + vi + geneTag3 + vi + geneTag4 + vi + geneTag5 + strGeneScore + geneTag6;
+
+		//	map<double, string> snpval;
+		//	double esp = 0.000000001;
+		//	int k = 0;
+		//	for (auto& svi : ((geneSnpGlobal))[vi]) // for corresponding list of SNPs
+		//	{
+		//		if (((lgRsInputIndex)).find(svi) != (((lgRsInputIndex))).end()) /// some not welcome snp may appear!!!
+		//		{
+		//			if (((lgRsInput))[((lgRsInputIndex))[svi]] >= cutoff) {// significant SNPs
+		//				if (snpval.find(((lgRsInput))[((lgRsInputIndex))[svi]]) == snpval.end()) {// not exist
+		//					snpval[((lgRsInput))[((lgRsInputIndex))[svi]]] = svi;
+		//				}
+		//				else {
+		//					snpval[((lgRsInput))[((lgRsInputIndex))[svi]] + ++k * esp] = svi;
+		//				}
+		//			}
+		//		}
+		//	}
+
+		//	for (map<double, string>::reverse_iterator sv = snpval.rbegin(); sv != snpval.rend(); sv++) {
+		//		double tp = pow(10, -sv->first);
+		//		string strTp = to_string(tp);
+		//		agene += snpTag1 + sv->second + snpTag2 + sv->second + snpTag3 + strTp + snpTag4;
+		//	}
+		//	agene += subGeneTag1;
+
+		//	//////////////////////////////////////////////////////////////////////////
+		//	map<double, string> geneweight;
+		//	k = 0;
+
+		//	for (auto& svi : minList) { // find neighbor in current minimal list
+		//		if (svi.compare(vi) != 0) // not identical
+		//		{
+		//			if (cmnet[vi].find(svi) != cmnet[vi].end()) // having link from vi to svi
+		//			{
+		//				if (geneweight.find(cmnet[vi][svi]) != geneweight.end()) // not exist
+		//					geneweight[cmnet[vi][svi]] = svi;
+		//				else {
+		//					geneweight[cmnet[vi][svi] + ++k * esp] = svi;
+		//				}
+		//			}
+		//			else
+		//				if (cmnet[svi].find(vi) != cmnet[svi].end()) // having link from vi to svi
+		//				{
+		//					if (geneweight.find(cmnet[svi][vi]) != geneweight.end()) // not exist
+		//						geneweight[cmnet[svi][vi]] = svi;
+		//					else {
+		//						geneweight[cmnet[svi][vi] + ++k * esp] = svi;
+		//					}
+		//				}
+		//		}
+		//	}
+
+		//	for (map<double, string>::reverse_iterator gw = geneweight.rbegin(); gw != geneweight.rend(); gw++) {
+		//		string strEdgeWeight = to_string(gw->first);
+		//		agene += subGeneTag2 + gw->second + subGeneTag3 + gw->second + subGeneTag4 + strEdgeWeight + subGeneTag5;
+		//	}
+		//	//////////////////////////////////////////////////////////////////////////
+		//	agene += geneTagEnd;
+		//	snpGeneInfo += agene;
+		//}
+
+		///////////////////////////////////////////////////////////
+		////double curGeneScore = orgGeneScore[geneInputIndex[<geneName>]];	 // NODE WEIGHT
+		////filePath = setSubNetBuilding("geneset_test", geneList, subnet, orgGeneScore, geneInputIndex);
+		//ogdf::Graph G;
+		//ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::nodeGraphics |
+		//	ogdf::GraphAttributes::nodeStyle |
+		//	ogdf::GraphAttributes::nodeLabel |
+		//	ogdf::GraphAttributes::edgeGraphics |
+		//	ogdf::GraphAttributes::edgeArrow |
+		//	ogdf::GraphAttributes::edgeStyle);
+		//map <string, ogdf::node> PROTEIN_MAP;
+
+		//graph_construct(minList, cmnet, PROTEIN_MAP, G, GA);
+		//node_colorize(G, GA, (orgGeneScore), (geneInputIndex), PROTEIN_MAP);
+		//node_setsize(G, GA);
+		//edge_adjust(G, GA);
+		//ogdf::SugiyamaLayout SL;
+		//SL.call(GA);
+		//ogdf::SpringEmbedderFR SE;
+		//SE.call(GA);
+
+		//ogdf::GraphIO::SVGSettings svgs = ogdf::GraphIO::SVGSettings();
+		//svgs.fontSize(15);
+		//svgs.fontColor("#000000");
+		//filePath += ".html";
+		//ofstream fou(filePath);
+		//ogdf::GraphIO::drawSVGe(GA, fou, svgs, snpGeneInfo, filePath);
+		//if (fou.is_open())	fou.close();
+
+		//PROTEIN_MAP.clear();
+		//map <string, ogdf::node>().swap(PROTEIN_MAP);
+		// finishing					
+		//////////////////////////////////////////////////////////////////////////
 		return filePath;
 	}
+
+	//static void addedge(ogdf::node node1, ogdf::node node2, double value, ogdf::Graph &G, ogdf::GraphAttributes &GA);
+	//static void addNode(string label, ogdf::Graph &G, ogdf::GraphAttributes &GA, std::map<string, ogdf::node> &PROTEIN_MAP);
+	//static string ith(int col);
+	//static string colorize(double weight);
+	//static void node_colorize(ogdf::Graph G, ogdf::GraphAttributes &GA, std::vector<double> orgGeneScore, std::map <string, int> geneInputIndex, std::map <string, ogdf::node> PROTEIN_MAP);
+	//static double percent(int degree, std::vector<int> degrees);
+	//static double percent(double weight, std::vector<double> weights);
+	//static std::vector <float> sort_weight(ogdf::Graph G, ogdf::GraphAttributes GA);
+	//static void graph_construct(std::vector <string> SubNetGenes, std::map<string, std::map<string, double>> subnet, std::map <string, ogdf::node> &PROTEIN_MAP, ogdf::Graph &G, ogdf::GraphAttributes &GA);
+	//static std::vector <int> sort_degree(ogdf::Graph G);
+	//static void node_setsize(ogdf::Graph G, ogdf::GraphAttributes &GA);
+	//static void edge_adjust(ogdf::Graph G, ogdf::GraphAttributes &GA);
+	//static string setSubNetDraw(netparam *param, string setName, double cutoff = 0.05);
+	//static string coreNetDraw(netparam *param, string setName = "DIABETES_CORE_GENE_NET", double qvalcutoff = 0.10, double cutoff = 0.001);
 
 	void addedge(ogdf::node node1, ogdf::node node2, double value, ogdf::Graph &G, ogdf::GraphAttributes &GA) {
 		ogdf::edge e = G.newEdge(node1, node2);
