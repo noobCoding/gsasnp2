@@ -1425,6 +1425,7 @@ public:
 			{
 				double genescore = pow(10, -((*(param->adjGeneScore))[(*(param->geneInputIndex))[vi]]));
 				string strGeneScore = to_string(genescore);
+				while (strGeneScore.back() == '0') strGeneScore.pop_back();
 				agene = geneTag1 + vi + geneTag2 + vi + geneTag3 + vi + geneTag4 + vi + geneTag5 + strGeneScore + geneTag6;
 
 				map<double, string> snpval;
@@ -1448,6 +1449,7 @@ public:
 				for (map<double, string>::reverse_iterator sv = snpval.rbegin(); sv != snpval.rend(); sv++) {
 					double tp = pow(10, -sv->first);
 					string strTp = to_string(tp);
+					while (strTp.back() == '0') strTp.pop_back();
 					agene += snpTag1 + sv->second + snpTag2 + sv->second + snpTag3 + strTp + snpTag4;
 				}
 				agene += subGeneTag1;
@@ -1481,6 +1483,7 @@ public:
 
 				for (map<double, string>::reverse_iterator gw = geneweight.rbegin(); gw != geneweight.rend(); gw++) {
 					string strEdgeWeight = to_string(gw->first);
+					while (strEdgeWeight.back() == '0') strEdgeWeight.pop_back();
 					agene += subGeneTag2 + gw->second + subGeneTag3 + gw->second + subGeneTag4 + strEdgeWeight + subGeneTag5;
 				}
 				//////////////////////////////////////////////////////////////////////////
@@ -1492,6 +1495,7 @@ public:
 			//double curGeneScore = orgGeneScore[geneInputIndex[<geneName>]];	 // NODE WEIGHT
 			//filePath = setSubNetBuilding("geneset_test", geneList, subnet, orgGeneScore, geneInputIndex);
 			string strcutoff = to_string(pow(10, -cutoff));
+			while (strcutoff.back() == '0') strcutoff.pop_back();
 			setName += "_" + strcutoff;
 			ogdf::Graph G;
 			ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::nodeGraphics |
@@ -1617,6 +1621,7 @@ public:
 
 		////	SNP-GENE INFORMATION	//////////////////////////////////////////////////////////////////////		
 		string strcutoff = to_string(pow(10, -cutoff));
+		while (strcutoff.back() == '0') strcutoff.pop_back();		
 		const string geneTag1 = "<div id='myModal";
 		const string geneTag2 = "' class='modal'>  <div class='modal-content'><div class='modal-header'><span id='close";
 		const string geneTag3 = "' class='close'>&times;</span><h2>Gene-SNPs Reference</h2></div><div class='modal-body'><table><col width='200'><col width='auto'><tbody><tr><td><p><b>Gene<b></p></td><td><a href = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
@@ -1644,6 +1649,10 @@ public:
 		{
 			double genescore = pow(10, -((*(param->adjGeneScore))[(*(param->geneInputIndex))[vi]]));
 			string strGeneScore = to_string(genescore);
+			while (strGeneScore.back() == '0')
+			{
+				strGeneScore.pop_back();
+			}
 			agene = geneTag1 + vi + geneTag2 + vi + geneTag3 + vi + geneTag4 + vi + geneTag5 + strGeneScore + geneTag6;
 			map<double, string> snpval;
 			double esp = 0.000000001;
@@ -1666,6 +1675,7 @@ public:
 			for (map<double, string>::reverse_iterator sv = snpval.rbegin(); sv != snpval.rend(); sv++) {
 				double tp = pow(10, -sv->first);
 				string strTp = to_string(tp);
+				while (strTp.back() == '0') strTp.pop_back();
 				agene += snpTag1 + sv->second + snpTag2 + sv->second + snpTag3 + strTp + snpTag4;
 			}
 			agene += subGeneTag1;
@@ -1698,6 +1708,7 @@ public:
 
 			for (map<double, string>::reverse_iterator gw = geneweight.rbegin(); gw != geneweight.rend(); gw++) {
 				string strEdgeWeight = to_string(gw->first);
+				while (strEdgeWeight.back() == '0') strEdgeWeight.pop_back();
 				agene += subGeneTag2 + gw->second + subGeneTag3 + gw->second + subGeneTag4 + strEdgeWeight + subGeneTag5;
 			}
 			//////////////////////////////////////////////////////////////////////////
@@ -1708,7 +1719,9 @@ public:
 		/////////////////////////////////////////////////////////
 		//double curGeneScore = orgGeneScore[geneInputIndex[<geneName>]];	 // NODE WEIGHT
 		//filePath = setSubNetBuilding("geneset_test", geneList, subnet, orgGeneScore, geneInputIndex);
-		setName += "_" + strcutoff + "_" + to_string(qvalcutoff);
+		string tmpqval = to_string(qvalcutoff);
+		while (tmpqval.back() == '0') tmpqval.pop_back();		
+		setName += "_" + strcutoff + "_" + tmpqval;
 		ogdf::Graph G;
 		ogdf::GraphAttributes GA(G, ogdf::GraphAttributes::nodeGraphics |
 			ogdf::GraphAttributes::nodeStyle |
