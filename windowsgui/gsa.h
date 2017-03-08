@@ -150,21 +150,20 @@ public:
 	map<string, double>	pvAdjusted;
 	map<string, double> fdrAdjusted;
 
-	vector<double> orgGeneScore;
-	vector<double>		adjGeneScore;
+	vector<double>	orgGeneScore;
+	vector<double>	adjGeneScore;
 	map<string, vector<string>> setGeneRefined;
 	vector<string> geneRefined;
 	map<string, int> geneRefinedIndex;
 	map<string, string> bestSnpGene; // <gene, best-snp>	
-
-	map<string, int> snpLocMap; // <snp, position>
-	map<string, string> famiGene; // <gene, metaGene>
-	map<string, adjacentpair> geneInOrder; // <geneA, geneA-geneB-relation>		
-	map<string, genelocation> geneLoc; // <gene, start_loc>
 	map<double, int>	sorted_pval_index;
 
 	map<string, map<string, double>> genenet;
+	
 	int minSetSize, maxSetSize;
+	initparam initParam;
+	string	hgFile = "";
+	string	geneListFile = "";
 
 public:
 	gsa()
@@ -193,27 +192,22 @@ public:
 		if (!zsAdjusted.empty()) zsAdjusted.clear(), map<string, double>().swap(zsAdjusted);
 		if (!pvAdjusted.empty()) pvAdjusted.clear(), map<string, double>().swap(pvAdjusted);
 		if (!fdrAdjusted.empty()) fdrAdjusted.clear(), map<string, double>().swap(fdrAdjusted);
-		if (!adjGeneScore.empty()) adjGeneScore.clear(), vector<double>().swap(adjGeneScore);
-		if (!geneInOrder.empty()) geneInOrder.clear(), map<string, adjacentpair>().swap(geneInOrder); // <geneA, geneA-geneB-relation>	
-		if (!snpLocMap.empty()) snpLocMap.clear(), map<string, int>().swap(snpLocMap); // <snp, position>
-		if (!geneLoc.empty()) geneLoc.clear(), map<string, genelocation>().swap(geneLoc); // <gene, start_loc>
+		if (!adjGeneScore.empty()) adjGeneScore.clear(), vector<double>().swap(adjGeneScore);		
 		if (!setGeneRefined.empty()) setGeneRefined.clear(), map<string, vector<string>>().swap(setGeneRefined);
 		if (!geneRefined.empty()) geneRefined.clear(), vector<string>().swap(geneRefined);
 		if (!geneRefinedIndex.empty()) geneRefinedIndex.clear(), map<string, int>().swap(geneRefinedIndex);
-		if (!bestSnpGene.empty()) bestSnpGene.clear(), map<string, string>().swap(bestSnpGene); // <gene, best-snp>
-		if (!famiGene.empty()) famiGene.clear(), map<string, string>().swap(famiGene); // <gene, best-snp>				
+		if (!bestSnpGene.empty()) bestSnpGene.clear(), map<string, string>().swap(bestSnpGene); // <gene, best-snp>		
 	}
 
 public:
 
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	void Initializing(initparam initParam) {
+		this->initParam = initParam;
+
 		snpPvalueLoad(initParam.inputFile);
 		snpGeneMapGenerate(initParam.snpGeneMapFile, initParam.inputType);
-		setGeneLoad(initParam.setFile, initParam.convert2Symbol);
-
-		string	hgFile = "";
-		string	geneListFile = "";
+		setGeneLoad(initParam.setFile, initParam.convert2Symbol);		
 		switch (initParam.hgVersion)
 		{
 		case 0:
@@ -233,10 +227,10 @@ public:
 			geneListFile = "data\\hg19GeneList";
 			break;
 		}
-		snpLocMapGenerate(hgFile);
-		geneLocMapGenerate(geneListFile);
-		familyGeneLoad();
-		adjacentGeneMapLoad(initParam.adjacentGeneFile);
+//		snpLocMapGenerate(hgFile);
+//		geneLocMapGenerate(geneListFile);
+//		familyGeneLoad();
+//		adjacentGeneMapLoad(initParam.adjacentGeneFile);
 	}
 
 	void Analyzing(initparam initParam)// resparam &resParam) 
@@ -723,6 +717,17 @@ public:
 		}
 
 		// adjacent gene filter
+		map<string, int> snpLocMap; // <snp, position>
+		map<string, string> famiGene; // <gene, metaGene>
+		map<string, genelocation> geneLoc; // <gene, start_loc>
+		map<string, adjacentpair> geneInOrder; // <geneA, geneA-geneB-relation>		
+
+		familyGeneLoad(famiGene);
+		geneLocMapGenerate(geneLoc, geneListFile);		
+		snpLocMapGenerate(snpLocMap, hgFile);
+		adjacentGeneMapLoad(geneInOrder, initParam.adjacentGeneFile);
+
+		//////////////////////////////////////////////////////////////////////////
 		for (auto sg : setGeneGlobal)
 		{
 			// set-gene map: 1st phase: representative assigning
@@ -786,7 +791,9 @@ public:
 				//fou << li->second << endl;
 			}
 
-			// 3rd: checking correlation of 2 adjacent genes			
+			// 3rd: checking correlation of 2 adjacent genes	
+
+			//////////////////////////////////////////////////////////////////////////
 			vector<string> finalRefinedGene(0);
 			for (int i = 0; i < (int)sortedRefinedGene.size() - 1; i++)
 			{
@@ -853,7 +860,7 @@ public:
 
 	}	/// end of function geneFilter
 
-	void familyGeneLoad(string filename = "data\\FamilyGeneList")
+	void familyGeneLoad(map<string, string> &famiGene, string filename = "data\\FamilyGeneList")
 	{
 		ifstream fin(filename);
 		if (!fin.is_open())
@@ -878,7 +885,7 @@ public:
 		fin.close();
 	}
 
-	void geneLocMapGenerate(string filename = "data\\hg19GeneList") {
+	void geneLocMapGenerate(map<string, genelocation> &geneLoc, string filename = "data\\hg19GeneList") {
 		ifstream fin(filename);
 		if (!fin.is_open())
 		{
@@ -903,7 +910,7 @@ public:
 		fin.close();
 	}
 
-	void adjacentGeneMapLoad(string filename = "data\\EUR_Adjacent_correlation") {
+	void adjacentGeneMapLoad(map<string, adjacentpair> &geneInOrder, string filename = "data\\EUR_Adjacent_correlation") {
 		ifstream fin(filename);
 		if (!fin.is_open())
 		{
@@ -937,7 +944,7 @@ public:
 		"chr19.txt", "chr18.txt", "chr17.txt", "chr16.txt", "chr15.txt", "chr14.txt", "chr13.txt", "chr12.txt", "chr11.txt",
 		"chr10.txt", "chr9.txt", "chr8.txt", "chr7.txt", "chr6.txt", "chr5.txt", "chr4.txt", "chr3.txt", "chr2.txt", "chr1.txt" };*/
 
-	void snpLocMapGenerate(string filename = "data\\rsloc_hg19") {
+	void snpLocMapGenerate(std::map<string, int> &snpLocMap, string filename = "data\\rsloc_hg19") {
 		ifstream fin;
 		string inpLine, curSnp;
 		fin.open(filename);
@@ -948,10 +955,7 @@ public:
 			EXIT_FAILURE;
 		}
 
-		snpLocMap.clear();
-		std::map<string, int>().swap(snpLocMap);
-		////////////////////////////////////////////////////////			
-
+		////////////////////////////////////////////////////////
 		while (getline(fin, inpLine))
 		{
 			string chromosome, curSnp;

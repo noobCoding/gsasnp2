@@ -16,9 +16,8 @@ class CBigGsaDlg : public CDialogEx
 // Construction
 public:
 	CBigGsaDlg(CWnd* pParent = NULL);	// standard constructor
-	virtual ~CBigGsaDlg() { 
-		test->refreshAll();
-		delete test; 
+	virtual ~CBigGsaDlg() {
+		if (test)	delete test; 
 	};
 	
 // Dialog Data
@@ -44,8 +43,6 @@ protected:
 public:
 
 	gsa* test;
-
-	
 	CListCtrl	m_cListCtrl;
 	CTabCtrl	m_cTabListMode;	
 	CHistoryEdit m_Log;
