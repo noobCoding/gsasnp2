@@ -5,6 +5,25 @@ Project website: https://sites.google.com/view/gsasnp2
 
 Data for testing can be downloaded at: https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k
 
+# Compiling and executing:
+
+
+The code is quite simple to compile and use with following commands:
+ 
+Assume that you had boost library 1.63.0 (for example) installed in the same folder of ‘gsasnp’:
+ 
+1/ Compiling:
+   
+   g++ -std=c++11 -I ~/gsasnp/boost_1_63_0/ -o gsasnp gsasnp.cpp -Wall -g -L ~/gsasnp/boost_1_63_0/stage/lib/ -lboost_program_options
+               
+2/ Environment variable declaration:            
+                
+   export LD_LIBRARY_PATH=~/gsasnp/boost_1_63_0/stage/lib:$LD_LIBRARY_PATH
+ 
+3/ Use following command for details of usage:
+
+  gsasnp2 -?   or  gsanp2 --help
+
 # Five features of GSA-SNP2:
 
 1/  Reasonable type I error control by the following two processes:
