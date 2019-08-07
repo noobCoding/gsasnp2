@@ -6,10 +6,7 @@ Project website: https://sites.google.com/view/gsasnp2
 Data for testing can be downloaded at: https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k
 
 # Compiling and executing:
-
-
 The code is quite simple to compile and use with following commands:
- 
 Assume that you had boost library 1.63.0 (for example) installed in the same folder of ‘gsasnp’:
  
 1/ Compiling:
