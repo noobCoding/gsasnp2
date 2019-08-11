@@ -153,20 +153,20 @@ int main(int argc, char** argv)
 	switch (hgVersion)
 	{
 	case 0:
-		hgFile = "data\\rsloc_hg18";
-		geneListFile = "data\\hg18GeneList";
+		hgFile = "data/rsloc_hg18";
+		geneListFile = "data/hg18GeneList";
 		break;
 	case 1:
-		hgFile = "data\\rsloc_hg19";
-		geneListFile = "data\\hg19GeneList";
+		hgFile = "data/rsloc_hg19";
+		geneListFile = "data/hg19GeneList";
 		break;
 	case 2:
-		hgFile = "data\\rsloc_hg38";
-		geneListFile = "data\\hg38GeneList";
+		hgFile = "data/rsloc_hg38";
+		geneListFile = "data/hg38GeneList";
 		break;
 	default:
-		hgFile = "data\\rsloc_hg19";
-		geneListFile = "data\\hg19GeneList";
+		hgFile = "data/rsloc_hg19";
+		geneListFile = "data/hg19GeneList";
 		break;
 	}
 	
