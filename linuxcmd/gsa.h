@@ -368,12 +368,14 @@ public:
 				firstpinkey = mi.first;
 			}
 		}
+		
+		double gmu = meanv(newGeneScore);
+		double gsi = sdv(newGeneScore);
+		double outAlter = gmu + 3 * gsi;
 
-		if (upperGS > 8.0)	upperGS = 8.0; // sorted_pval_index.end()->first;
+		if (upperGS > outAlter)	upperGS = outAlter; // sorted_pval_index.end()->first;
 		outlierBound = upperGS; // fix - maximum value in lower GS partition
 		lowerGS = sorted_pval_index.begin()->first;
-		//		upperGS = findMedianOfTopMax(.5);		
-		//fou << lowerGS << endl << upperGS << endl;
 
 		vector<double> topGS;
 		vector<double> topSize;
