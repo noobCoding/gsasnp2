@@ -1,9 +1,9 @@
 # gsasnp2
 GSA-SNP2 is a successor of GSA-SNP (Nam et al. 2010, NAR web server issue). GSA-SNP2 accepts human GWAS summary data (rs numbers, p-values) or gene-wise p-values (possibly obtained from VEGAS or GATES) and outputs pathway gene sets ‘enriched’ with genes associated with the given phenotype. 
 
-Project website: https://sites.google.com/view/gsasnp2
+Project website: [https://sites.google.com/view/gsasnp2](https://sites.google.com/view/gsasnp2)
 
-Data for testing can be downloaded at: https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k
+Data for testing can be downloaded at: [https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k](https://drive.google.com/open?id=0B1qYV2wocvjvM21YTWhYRWxNM0k)
 
 # Compiling and executing:
 The code is quite simple to compile and use with following commands:
@@ -41,7 +41,7 @@ Performance of GSA-SNP2 was compared with those of five existing competitive met
 
 1/ Comparison of type I error control: twenty null genotype data sets were generated using 1000 genome (European) and GWAsimulator tool and corresponding p-values were input to each program. GSA-SNP2 exhibited greatly improved type I error control compared to GSA-SNP.
   
-2/ Power comparison: DIAGRAM consortium GWAS p-values (European) were used to compare the statistical power. 16 curated T2D related pathways (Morris et al. Nat. Genetics 2012) as well as the terms including ‘diabetes’ were regarded as true positives (TPs). GSA-SNP2 exhibited high power and best ranks of TPs. See the results here: https://drive.google.com/open?id=0Bx_h1_jXDlmObjRzaFhBclRzX1k
+2/ Power comparison: DIAGRAM consortium GWAS p-values (European) were used to compare the statistical power. 16 curated T2D related pathways (Morris et al. Nat. Genetics 2012) as well as the terms including ‘diabetes’ were regarded as true positives (TPs). GSA-SNP2 exhibited high power and best ranks of TPs. See the results here: [https://drive.google.com/open?id=0Bx_h1_jXDlmObjRzaFhBclRzX1k](https://drive.google.com/open?id=0Bx_h1_jXDlmObjRzaFhBclRzX1k)
 
 # Why competitive pathway analysis for GWAS data? 
 
