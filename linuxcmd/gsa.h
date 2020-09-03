@@ -702,7 +702,7 @@ public:
 
 	}	/// end of function geneFilter
 
-	void geneLocMapGenerate(string filename = "data\\hg19GeneList") {
+	void geneLocMapGenerate(string filename = "data/hg19GeneList") {
 		ifstream fin(filename);
 		if (!fin.is_open())
 		{
@@ -727,7 +727,7 @@ public:
 		fin.close();
 	}
 
-	void adjacentGeneMapLoad(string filename = "data\\EUR_Adjacent_correlation") {
+	void adjacentGeneMapLoad(string filename = "data/EUR_Adjacent_correlation") {
 		ifstream fin(filename);
 		if (!fin.is_open())
 		{
@@ -757,7 +757,7 @@ public:
 		fin.close();
 	}
 
-	void snpLocMapGenerate(string filename = "data\\rsloc_hg19") {
+	void snpLocMapGenerate(string filename = "data/rsloc_hg19") {
 		ifstream fin;
 		string inpLine, curSnp;
 		fin.open(filename);
@@ -846,12 +846,12 @@ public:
 	}
 
 	
-	void setGeneLoad(string setFile = "data\\c2.cp.v5.2.symbols.gmt", bool convert2symbol = 0)
+	void setGeneLoad(string setFile = "data/c2.cp.v5.2.symbols.gmt", bool convert2symbol = 0)
 	{
-		string set_gene_GO = "data\\Gene Ontology";
-		string set_gene_c5all = "data\\c5.all.v5.0.symbols.gmt";
-		string set_gene_KEGG = "data\\KEGG";
-		string id2gene = "data\\id2gene";  // convert other ID type to symbol type
+		string set_gene_GO = "data/Gene Ontology";
+		string set_gene_c5all = "data/c5.all.v5.0.symbols.gmt";
+		string set_gene_KEGG = "data/KEGG";
+		string id2gene = "data/id2gene";  // convert other ID type to symbol type
 
 		map<string, string> ensemblID;	//  <ensemblID, symbol>
 		map<string, string> entrezID;		//  <entrezID, symbol>
@@ -969,7 +969,7 @@ public:
 		fin.close();
 	}
 
-	void snpGeneMapGenerate(string snp_gene_file = "data\\db19_20k", bool inputType = SNP_INPUT)
+	void snpGeneMapGenerate(string snp_gene_file = "data/db19_20k", bool inputType = SNP_INPUT)
 	{
 		ifstream fin(snp_gene_file);
 		if (!fin.is_open())
@@ -1062,7 +1062,7 @@ public:
 		}
 	}
 	
-	void genePvalueLoad(string gene_pval_file = "data\\DIAGRAMgene")
+	void genePvalueLoad(string gene_pval_file = "data/DIAGRAMgene")
 	{
 		ifstream fin(gene_pval_file);
 		if (!fin.is_open())
@@ -1078,7 +1078,7 @@ public:
 		map<string, string> ensemblID;	//  <ensemblID, symbol>
 		map<string, string> entrezID;		//  <entrezID, symbol>
 		map<string, string> uniswissprotID;	// <uniswissprotID, symbol>
-		string id2gene = "data\\id2gene";  // convert other ID type to symbol type
+		string id2gene = "data/id2gene";  // convert other ID type to symbol type
 		ifstream ftable(id2gene);
 		if (!ftable.is_open())
 		{
@@ -1133,7 +1133,7 @@ public:
 	}
 
 
-	void snpPvalueLoad(string snp_pval_file = "data\\DIAGRAM")//example_height_snp")
+	void snpPvalueLoad(string snp_pval_file = "data/DIAGRAM")//example_height_snp")
 	{
 		ifstream fin(snp_pval_file);
 		if (!fin.is_open())
